@@ -4,20 +4,14 @@ import HeroBanner from "@/components/hero/page";
 import { ProductGrid } from "@/components/product-grid";
 import { Suspense } from "react";
 import FeatureCards from "@/components/FeatureCards";
-
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  quantity: number;
-  status: boolean;
-  images: string[];
-  // Puedes agregar sizes, colors, etc. si los usas
-}
+import { Product } from '@/lib/products/schema';
 
 async function ProductsSection() {
-  const products: Product[] = await getProducts();
+  const rawProducts = await getProducts();
+  const products: Product[] = rawProducts.map((product: any) => ({
+    ...product,
+    tags: Array.isArray(product.tags) ? product.tags.join(', ') : product.tags,
+  }));
 
   return <ProductGrid products={products} />;
 }
