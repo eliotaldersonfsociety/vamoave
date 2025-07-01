@@ -31,7 +31,7 @@ export interface Purchase {
   shippingServiceBalance: number | null;
   total: number;
   status: string | null;
-  createdAt: string;
+  createdAt: string | null; // ✅ Ahora acepta null
   items: PurchaseItem[];
 }
 
