@@ -7,16 +7,9 @@ import { ShoppingCart, CheckCircle, XCircle } from "lucide-react";
 import { useCartStore } from "@/lib/cartStore";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Product } from "@/lib/products/schema"; // Asegúrate de que este import sea correcto
 
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  quantity: number;
-  status: boolean;
-  images: string[];
-}
+
 
 interface ProductGridProps {
   products: Product[];
@@ -34,7 +27,7 @@ export function ProductGrid({ products }: ProductGridProps) {
       id: productToAdd.id,
       name: productToAdd.title,
       price: productToAdd.price,
-      image: productToAdd.images[0] || "/placeholder.svg",
+      image: (productToAdd.images as string[])[0] || "/placeholder.svg",
       quantity: 1,
       color: null,
       size: null,
