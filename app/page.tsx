@@ -1,4 +1,4 @@
-// app/pagina/page.tsx
+// app/paginxxa/page.tsx
 import { getProducts } from "@/app/helpers/getProducts";
 import HeroBanner from "@/components/hero/page";
 import { ProductGrid } from "@/components/product-grid";
