@@ -9,9 +9,10 @@ import { Product } from '@/lib/products/schema';
 async function ProductsSection() {
   const rawProducts = await getProducts();
   const products: Product[] = rawProducts.map((product: any) => ({
-    ...product,
-    tags: Array.isArray(product.tags) ? product.tags.join(', ') : product.tags,
-  }));
+  ...product,
+  tags: Array.isArray(product.tags) ? product.tags.join(', ') : product.tags,
+  status: Boolean(product.status), // ✅ Conversión explícita
+}));
 
   return <ProductGrid products={products} />;
 }
