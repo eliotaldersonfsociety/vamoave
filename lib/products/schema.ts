@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 export const productsTable = sqliteTable("products", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
-  description: text("description"),
+  description: text("description").notNull().default(''),
   price: real("price").notNull(),
   compare_at_price: real("compare_at_price"),
   cost_per_item: real("cost_per_item"),
