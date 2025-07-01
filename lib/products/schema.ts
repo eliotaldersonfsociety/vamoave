@@ -11,7 +11,8 @@ export const productsTable = sqliteTable("products", {
   cost_per_item: real("cost_per_item"),
   vendor: text("vendor"),
   product_type: text("product_type"),
-  status: integer("status").notNull().default(1),
+  status: integer("status", { mode: "boolean" }).notNull().default(true),
+
   category: text("category"),
   tags: text("tags"),
   sku: text("sku"),
