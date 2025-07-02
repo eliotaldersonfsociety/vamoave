@@ -78,7 +78,7 @@ export default function LandingPage({ product }: { product: Product }) {
 
                   <div className="pt-4">
                     <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-                      Ver Detalles
+                      Agregar al Carrito
                     </button>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ export default function LandingPage({ product }: { product: Product }) {
             Miles ya aprovecharon estas ofertas… ¿y tú, qué esperas?
           </p>
           <button className="bg-red-800 hover:bg-red-900 text-white font-bold py-4 px-12 rounded-lg text-lg transition-colors duration-200">
-            Comenzar Ahora
+            Pide el tuyo
           </button>
         </div>
       </div>
