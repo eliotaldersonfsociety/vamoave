@@ -49,6 +49,11 @@ type Props = {
   productImages: string[]
 }
 
+const generateUniqueCode = () => {
+  const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `CODE-${randomString}`;
+};
+
 const initialProduct: ProductForm = {
   title: "",
   description: "",
@@ -60,8 +65,8 @@ const initialProduct: ProductForm = {
   status: true,
   category: "",
   tags: "",
-  sku: "",
-  barcode: "",
+  sku: generateUniqueCode(),
+  barcode: generateUniqueCode(),
   quantity: 0,
   track: false,
   images: [],
@@ -95,7 +100,6 @@ const nameMap: Record<string, string> = {
   trackInventory: 'track',
   compare: 'compare',
   range: 'range',
-  // otros mapeos si los necesitas
 };
 
 export default function NewProduct() {
@@ -108,6 +112,9 @@ export default function NewProduct() {
   const [useColors, setUseColors] = useState(false)
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+
+  const [isSkuEditable, setIsSkuEditable] = useState(false);
+  const [isBarcodeEditable, setIsBarcodeEditable] = useState(false);
 
   const handleGenerateDescription = async () => {
     if (!product.title || !product.category) {
@@ -148,7 +155,7 @@ export default function NewProduct() {
     } finally {
       setGenerating(false);
     }
-  }
+  };
 
   const handleGenerateLandingPage = async () => {
     if (!product.title || !product.category) {
@@ -189,14 +196,13 @@ export default function NewProduct() {
     } finally {
       setGenerating(false);
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
-    // Mapeo de nombre camelCase a nombre corto del estado
     const stateKey = nameMap[name] || name;
     setProduct(prev => ({ ...prev, [stateKey]: type === "checkbox" ? checked : value }));
-  }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -261,14 +267,14 @@ export default function NewProduct() {
     } finally {
       setUploading(false);
     }
-  }
+  };
 
   const handleRemoveImage = (index: number) => {
     setProduct((prev) => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }))
-  }
+  };
 
   const handleGenerateImage = async () => {
     if (!product.title) {
@@ -312,7 +318,7 @@ export default function NewProduct() {
     } finally {
       setGeneratingImage(false);
     }
-  }
+  };
 
   const handleSizeRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -326,7 +332,7 @@ export default function NewProduct() {
         },
       }))
     }
-  }
+  };
 
   const handleColorToggle = (color: string) => {
     setProduct((prev) => {
@@ -336,7 +342,7 @@ export default function NewProduct() {
         return { ...prev, colors: [...prev.colors, color] }
       }
     })
-  }
+  };
 
   const handleSizeToggle = (size: string) => {
     setProduct((prev) => {
@@ -346,7 +352,7 @@ export default function NewProduct() {
         return { ...prev, sizes: [...prev.sizes, size] }
       }
     })
-  }
+  };
 
   const handleSubmit = async () => {
     if (!product.title || !product.description || !product.price || !product.category) {
@@ -359,7 +365,6 @@ export default function NewProduct() {
     }
     setSaving(true);
     try {
-      console.log('[handleSubmit] Estado product antes de payload:', product);
       const payload = {
         title: product.title,
         description: product.description,
@@ -384,7 +389,6 @@ export default function NewProduct() {
           balance: service.balance
         })),
       };
-      console.log('[handleSubmit] PAYLOAD FINAL ENVIADO:', payload);
 
       const result = await saveProduct(payload);
 
@@ -412,542 +416,540 @@ export default function NewProduct() {
   };
 
   useEffect(() => {
-  const newSection = {
-    title: product.title,
-    description: product.description,
-    image: product.images[0] || "/placeholder.svg",
-  };
+    const newSection = {
+      title: product.title,
+      description: product.description,
+      image: product.images[0] || "/placeholder.svg",
+    };
 
-  try {
-    const savedSections = JSON.parse(localStorage.getItem("landingSections") || "[]");
-    const updatedSections = [...savedSections, newSection];
-    localStorage.setItem("landingSections", JSON.stringify(updatedSections));
-  } catch (e) {
-    console.warn("No se pudo guardar en localStorage:", e);
-  }
-}, [product.title, product.description, product.images]);
+    try {
+      const savedSections = JSON.parse(localStorage.getItem("landingSections") || "[]");
+      const updatedSections = [...savedSections, newSection];
+      localStorage.setItem("landingSections", JSON.stringify(updatedSections));
+    } catch (e) {
+      console.warn("No se pudo guardar en localStorage:", e);
+    }
+  }, [product.title, product.description, product.images]);
 
   return (
     <>
-    <div className="w-full bg-gray-100 min-h-screen">
-    <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-4 p-4 md:p-8">
-
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b">
-        <div className="container flex h-16 items-center px-4 sm:px-6">
-          <h1 className="ml-4 text-lg font-semibold">Añadir Producto</h1>
-          <div className="ml-auto">
-            <Button onClick={handleSubmit} disabled={uploading || saving}>
-              {saving ? "Guardando..." : uploading ? "Subiendo..." : "Guardar"}
-            </Button>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 p-4 sm:p-6 overflow-y-auto">
-        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="media">Imágenes</TabsTrigger>
-                <TabsTrigger value="pricing">Precios</TabsTrigger>
-                <TabsTrigger value="variants">Variantes</TabsTrigger>
-              </TabsList>
-              <TabsContent value="general" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Información del Producto</CardTitle>
-                    <CardDescription>Ingresa la información básica sobre tu producto.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Título</Label>
-                      <Input
-                        id="title"
-                        name="title"
-                        value={product.title}
-                        onChange={handleChange}
-                        placeholder="Nombre del producto"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Descripción</Label>
-                      <Textarea
-                        id="description"
-                        name="description"
-                        value={product.description}
-                        onChange={handleChange}
-                        placeholder="Describe tu producto..."
-                        className="min-h-32"
-                      />
-                      <Button
-                        onClick={handleGenerateDescription}
-                        disabled={generating || !product.title || !product.category}
-                      >
-                        {generating ? "Generando..." : "Generar Descripción con IA"}
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="productType">Tipo de producto</Label>
-                      <Select
-                        name="productType"
-                        value={product.type}
-                        onValueChange={(value) => setProduct({ ...product, type: value })}
-                      >
-                        <SelectTrigger id="productType">
-                          <SelectValue placeholder="Seleccionar tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="physical">Producto físico</SelectItem>
-                          <SelectItem value="digital">Producto digital</SelectItem>
-                          <SelectItem value="service">Servicio</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="vendor">Proveedor</Label>
-                      <Input
-                        id="vendor"
-                        name="vendor"
-                        value={product.vendor}
-                        onChange={handleChange}
-                        placeholder="Nombre del proveedor"
-                      />
-                    </div>
-                  </CardContent>
-                  <CardContent>
-                    <ShippingInfo product={product} setProduct={setProduct} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="media" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Imágenes del Producto</CardTitle>
-                    <CardDescription>Añade imágenes desde tu dispositivo o genera con IA</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-6">
-                      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                        <div className="flex gap-4 mb-6">
-                          <input
-                            type="file"
-                            id="file-upload"
-                            onChange={handleUpload}
-                            disabled={uploading}
-                            className="hidden"
-                          />
-                          <Button
-                            variant="outline"
-                            onClick={() => document.getElementById("file-upload")?.click()}
-                            disabled={uploading}
-                          >
-                            {uploading ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <ImagePlus className="mr-2 h-4 w-4" />
-                            )}
-                            Subir imágenes
-                          </Button>
-
-                          <Button
-                            onClick={handleGenerateImage}
-                            disabled={generatingImage || !product.title}
-                            variant="outline"
-                          >
-                            {generatingImage ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <ImagePlus className="mr-2 h-4 w-4" />
-                            )}
-                            Generar con IA
-                          </Button>
-                        </div>
-
-                        <p className="text-sm text-muted-foreground">Formatos soportados: JPG, PNG, WEBP (hasta 4MB)</p>
-                      </div>
-
-                      {(product.images.length > 0 || generatingImage) && (
-                        <div className="mt-6">
-                          <h3 className="mb-4 text-lg font-semibold">Galería de imágenes</h3>
-
-                          {(generatingImage || uploading) && (
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 mb-6">
-                              {[...Array(4)].map((_, i) => (
-                                <Skeleton key={i} className="h-48 w-full rounded-lg" />
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 w-full">
-                            {product.images.map((img, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-full aspect-square overflow-hidden rounded-lg border"
-                              >
-                                <img
-                                  src={img || "/placeholder.svg"}
-                                  alt={`Imagen del producto ${index + 1}`}
-                                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                  onError={(e) => {
-                                    ;(e.target as HTMLImageElement).src = "/placeholder.svg"
-                                  }}
+      <div className="w-full bg-gray-100 min-h-screen">
+        <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-4 p-4 md:p-8">
+          <div className="flex min-h-screen flex-col">
+            <header className="border-b">
+              <div className="container flex h-16 items-center px-4 sm:px-6">
+                <h1 className="ml-4 text-lg font-semibold">Añadir Producto</h1>
+                <div className="ml-auto">
+                  <Button onClick={handleSubmit} disabled={uploading || saving}>
+                    {saving ? "Guardando..." : uploading ? "Subiendo..." : "Guardar"}
+                  </Button>
+                </div>
+              </div>
+            </header>
+            <main className="flex-1 p-4 sm:p-6 overflow-y-auto">
+              <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <Tabs defaultValue="general" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="general">General</TabsTrigger>
+                      <TabsTrigger value="media">Imágenes</TabsTrigger>
+                      <TabsTrigger value="pricing">Precios</TabsTrigger>
+                      <TabsTrigger value="variants">Variantes</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="general" className="mt-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Información del Producto</CardTitle>
+                          <CardDescription>Ingresa la información básica sobre tu producto.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="title">Título</Label>
+                            <Input
+                              id="title"
+                              name="title"
+                              value={product.title}
+                              onChange={handleChange}
+                              placeholder="Nombre del producto"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="description">Descripción</Label>
+                            <Textarea
+                              id="description"
+                              name="description"
+                              value={product.description}
+                              onChange={handleChange}
+                              placeholder="Describe tu producto..."
+                              className="min-h-32"
+                            />
+                            <Button
+                              onClick={handleGenerateDescription}
+                              disabled={generating || !product.title || !product.category}
+                            >
+                              {generating ? "Generando..." : "Generar Descripción con IA"}
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="productType">Tipo de producto</Label>
+                            <Select
+                              name="productType"
+                              value={product.type}
+                              onValueChange={(value) => setProduct({ ...product, type: value })}
+                            >
+                              <SelectTrigger id="productType">
+                                <SelectValue placeholder="Seleccionar tipo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="physical">Producto físico</SelectItem>
+                                <SelectItem value="digital">Producto digital</SelectItem>
+                                <SelectItem value="service">Servicio</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="vendor">Proveedor</Label>
+                            <Input
+                              id="vendor"
+                              name="vendor"
+                              value={product.vendor}
+                              onChange={handleChange}
+                              placeholder="Nombre del proveedor"
+                            />
+                          </div>
+                        </CardContent>
+                        <CardContent>
+                          <ShippingInfo product={product} setProduct={setProduct} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="media" className="mt-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Imágenes del Producto</CardTitle>
+                          <CardDescription>Añade imágenes desde tu dispositivo o genera con IA</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid gap-6">
+                            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+                              <div className="flex gap-4 mb-6">
+                                <input
+                                  type="file"
+                                  id="file-upload"
+                                  onChange={handleUpload}
+                                  disabled={uploading}
+                                  className="hidden"
                                 />
                                 <Button
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-2 right-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                                  onClick={() => handleRemoveImage(index)}
+                                  variant="outline"
+                                  onClick={() => document.getElementById("file-upload")?.click()}
+                                  disabled={uploading}
                                 >
-                                  <Trash className="h-4 w-4" />
+                                  {uploading ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <ImagePlus className="mr-2 h-4 w-4" />
+                                  )}
+                                  Subir imágenes
                                 </Button>
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 text-center text-xs text-white">
-                                  Imagen {index + 1}
+                                <Button
+                                  onClick={handleGenerateImage}
+                                  disabled={generatingImage || !product.title}
+                                  variant="outline"
+                                >
+                                  {generatingImage ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <ImagePlus className="mr-2 h-4 w-4" />
+                                  )}
+                                  Generar con IA
+                                </Button>
+                              </div>
+                              <p className="text-sm text-muted-foreground">Formatos soportados: JPG, PNG, WEBP (hasta 4MB)</p>
+                            </div>
+                            {(product.images.length > 0 || generatingImage) && (
+                              <div className="mt-6">
+                                <h3 className="mb-4 text-lg font-semibold">Galería de imágenes</h3>
+                                {(generatingImage || uploading) && (
+                                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 mb-6">
+                                    {[...Array(4)].map((_, i) => (
+                                      <Skeleton key={i} className="h-48 w-full rounded-lg" />
+                                    ))}
+                                  </div>
+                                )}
+                                <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 w-full">
+                                  {product.images.map((img, index) => (
+                                    <div
+                                      key={index}
+                                      className="group relative w-full aspect-square overflow-hidden rounded-lg border"
+                                    >
+                                      <img
+                                        src={img || "/placeholder.svg"}
+                                        alt={`Imagen del producto ${index + 1}`}
+                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src = "/placeholder.svg"
+                                        }}
+                                      />
+                                      <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute top-2 right-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                                        onClick={() => handleRemoveImage(index)}
+                                      >
+                                        <Trash className="h-4 w-4" />
+                                      </Button>
+                                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 text-center text-xs text-white">
+                                        Imagen {index + 1}
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
-                            ))}
+                            )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="pricing" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Precios</CardTitle>
-                    <CardDescription>Establece la información de precios para tu producto.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Precio</Label>
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          $
-                        </span>
-                        <Input
-                          id="price"
-                          name="price"
-                          value={product.price}
-                          onChange={handleChange}
-                          type="number"
-                          step="0.01"
-                          className="pl-7"
-                          placeholder="0.00"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="compareAtPrice">Comparar con precio</Label>
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          $
-                        </span>
-                        <Input
-                          id="compareAtPrice"
-                          name="compare"
-                          value={product.compare}
-                          onChange={handleChange}
-                          type="number"
-                          step="0.01"
-                          className="pl-7"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Para mostrar un precio reducido, establece este valor más alto que el precio.
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="costPerItem">Costo por artículo</Label>
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                          $
-                        </span>
-                        <Input
-                          id="costPerItem"
-                          name="cost_per_item"
-                          value={product.cost_per_item}
-                          onChange={handleChange}
-                          type="number"
-                          step="0.01"
-                          className="pl-7"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">Los clientes no verán esto.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="variants" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Variantes del Producto</CardTitle>
-                    <CardDescription>Define las tallas y colores disponibles para este producto.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Switch id="useSizes" checked={useSizes} onCheckedChange={setUseSizes} />
-                        <Label htmlFor="useSizes">¿Usar tallas estándar?</Label>
-                      </div>
-                      {useSizes && (
-                        <>
-                          <Label className="text-base font-medium">Tallas Estándar</Label>
-                          <div className="flex flex-wrap gap-2">
-                            {sizeOptions.map((size) => (
-                              <Button
-                                key={size}
-                                type="button"
-                                variant={product.sizes.includes(size) ? "default" : "outline"}
-                                onClick={() => handleSizeToggle(size)}
-                                className="h-10 px-4"
-                              >
-                                {size}
-                              </Button>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Switch id="useSizeRange" checked={useSizeRange} onCheckedChange={setUseSizeRange} />
-                        <Label htmlFor="useSizeRange">¿Usar rango de tallas?</Label>
-                      </div>
-                      {useSizeRange && (
-                        <>
-                          <Label className="text-base font-medium">Rango de Tallas (cm)</Label>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="min">Mínimo</Label>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="pricing" className="mt-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Precios</CardTitle>
+                          <CardDescription>Establece la información de precios para tu producto.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="price">Precio</Label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                                $
+                              </span>
                               <Input
-                                id="min"
-                                name="min"
+                                id="price"
+                                name="price"
+                                value={product.price}
+                                onChange={handleChange}
                                 type="number"
-                                min="18"
-                                max="45"
-                                value={product.range.min}
-                                onChange={handleSizeRangeChange}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="max">Máximo</Label>
-                              <Input
-                                id="max"
-                                name="max"
-                                type="number"
-                                min="18"
-                                max="45"
-                                value={product.range.max}
-                                onChange={handleSizeRangeChange}
+                                step="0.01"
+                                className="pl-7"
+                                placeholder="0.00"
                               />
                             </div>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            Define el rango de tallas disponibles en centímetros (de 18 a 45 cm).
-                          </p>
-                        </>
-                      )}
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Switch id="useColors" checked={useColors} onCheckedChange={setUseColors} />
-                        <Label htmlFor="useColors">¿Usar colores disponibles?</Label>
-                      </div>
-                      {useColors && (
-                        <>
-                          <Label className="text-base font-medium">Colores Disponibles</Label>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            {colorOptions.map((color) => (
-                              <div
-                                key={color.value}
-                                className={`flex items-center space-x-2 border rounded-md p-2 cursor-pointer ${
-                                  product.colors.includes(color.value) ? "border-primary bg-primary/10" : "border-input"
-                                }`}
-                                onClick={() => handleColorToggle(color.value)}
-                              >
-                                <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: color.value }} />
-                                <span>{color.name}</span>
-                              </div>
-                            ))}
+                          <div className="space-y-2">
+                            <Label htmlFor="compareAtPrice">Comparar con precio</Label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                                $
+                              </span>
+                              <Input
+                                id="compareAtPrice"
+                                name="compare"
+                                value={product.compare}
+                                onChange={handleChange}
+                                type="number"
+                                step="0.01"
+                                className="pl-7"
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Para mostrar un precio reducido, establece este valor más alto que el precio.
+                            </p>
                           </div>
-                        </>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="mt-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="costPerItem">Costo por artículo</Label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                                $
+                              </span>
+                              <Input
+                                id="costPerItem"
+                                name="cost_per_item"
+                                value={product.cost_per_item}
+                                onChange={handleChange}
+                                type="number"
+                                step="0.01"
+                                className="pl-7"
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Los clientes no verán esto.</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="variants" className="mt-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Variantes del Producto</CardTitle>
+                          <CardDescription>Define las tallas y colores disponibles para este producto.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Switch id="useSizes" checked={useSizes} onCheckedChange={setUseSizes} />
+                              <Label htmlFor="useSizes">¿Usar tallas estándar?</Label>
+                            </div>
+                            {useSizes && (
+                              <>
+                                <Label className="text-base font-medium">Tallas Estándar</Label>
+                                <div className="flex flex-wrap gap-2">
+                                  {sizeOptions.map((size) => (
+                                    <Button
+                                      key={size}
+                                      type="button"
+                                      variant={product.sizes.includes(size) ? "default" : "outline"}
+                                      onClick={() => handleSizeToggle(size)}
+                                      className="h-10 px-4"
+                                    >
+                                      {size}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Switch id="useSizeRange" checked={useSizeRange} onCheckedChange={setUseSizeRange} />
+                              <Label htmlFor="useSizeRange">¿Usar rango de tallas?</Label>
+                            </div>
+                            {useSizeRange && (
+                              <>
+                                <Label className="text-base font-medium">Rango de Tallas (cm)</Label>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="min">Mínimo</Label>
+                                    <Input
+                                      id="min"
+                                      name="min"
+                                      type="number"
+                                      min="18"
+                                      max="45"
+                                      value={product.range.min}
+                                      onChange={handleSizeRangeChange}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="max">Máximo</Label>
+                                    <Input
+                                      id="max"
+                                      name="max"
+                                      type="number"
+                                      min="18"
+                                      max="45"
+                                      value={product.range.max}
+                                      onChange={handleSizeRangeChange}
+                                    />
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  Define el rango de tallas disponibles en centímetros (de 18 a 45 cm).
+                                </p>
+                              </>
+                            )}
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Switch id="useColors" checked={useColors} onCheckedChange={setUseColors} />
+                              <Label htmlFor="useColors">¿Usar colores disponibles?</Label>
+                            </div>
+                            {useColors && (
+                              <>
+                                <Label className="text-base font-medium">Colores Disponibles</Label>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                  {colorOptions.map((color) => (
+                                    <div
+                                      key={color.value}
+                                      className={`flex items-center space-x-2 border rounded-md p-2 cursor-pointer ${
+                                        product.colors.includes(color.value) ? "border-primary bg-primary/10" : "border-input"
+                                      }`}
+                                      onClick={() => handleColorToggle(color.value)}
+                                    >
+                                      <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: color.value }} />
+                                      <span>{color.name}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="mt-6">
+                        <CardHeader>
+                          <CardTitle>Previsualizar Landing Page</CardTitle>
+                          <CardDescription>
+                            Genera contenido persuasivo usando IA basado en el título y categoría del producto.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <LandingPagePreview
+                            productTitle={product.title}
+                            productCategory={product.category}
+                            productImages={product.images}
+                          />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+                <div>
+                  <Card>
                     <CardHeader>
-                      <CardTitle>Previsualizar Landing Page</CardTitle>
-                      <CardDescription>
-                        Genera contenido persuasivo usando IA basado en el título y categoría del producto.
-                      </CardDescription>
+                      <CardTitle>Estado</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <LandingPagePreview 
-                        productTitle={product.title} 
-                        productCategory={product.category} 
-                        productImages={product.images}
-                      />
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="status" className="cursor-pointer">
+                          Activo
+                        </Label>
+                        <Switch
+                          id="status"
+                          name="status"
+                          checked={product.status}
+                          onCheckedChange={(checked) => setProduct({ ...product, status: checked })}
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Los productos activos son visibles para los clientes.
+                      </p>
                     </CardContent>
                   </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Estado</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="status" className="cursor-pointer">
-                    Activo
-                  </Label>
-                  <Switch
-                    id="status"
-                    name="status"
-                    checked={product.status}
-                    onCheckedChange={(checked) => setProduct({ ...product, status: checked })}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Los productos activos son visibles para los clientes.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Organización</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Categoría</Label>
-                  <Input
-                    id="category"
-                    name="category"
-                    value={product.category}
-                    onChange={handleChange}
-                    placeholder="Categoría del producto"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Etiquetas</Label>
-                  <Input
-                    id="tags"
-                    name="tags"
-                    value={product.tags}
-                    onChange={handleChange}
-                    placeholder="verano, oferta, nuevo"
-                  />
-                  <p className="text-xs text-muted-foreground">Separa las etiquetas con comas</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Inventario</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU (Código de producto)</Label>
-                  <Input id="sku" name="sku" value={product.sku} onChange={handleChange} placeholder="SKU-123" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="barcode">Código de barras (ISBN, UPC, GTIN, etc.)</Label>
-                  <Input
-                    id="barcode"
-                    name="barcode"
-                    value={product.barcode}
-                    onChange={handleChange}
-                    placeholder="123456789"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="quantity">Cantidad</Label>
-                  <Input
-                    id="quantity"
-                    name="quantity"
-                    value={product.quantity}
-                    onChange={handleChange}
-                    type="number"
-                    placeholder="0"
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="trackInventory"
-                    name="trackInventory"
-                    checked={product.track}
-                    onCheckedChange={(checked) => setProduct({ ...product, track: checked })}
-                  />
-                  <Label htmlFor="trackInventory">Seguimiento de inventario</Label>
-                </div>
-              </CardFooter>
-            </Card>
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Resumen de Variantes</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Tallas Seleccionadas</Label>
-                  <div className="flex flex-wrap gap-1">
-                    {product.sizes.length > 0 ? (
-                      product.sizes.map((size) => (
-                        <div key={size} className="bg-muted text-muted-foreground px-2 py-1 rounded text-sm">
-                          {size}
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle>Organización</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Categoría</Label>
+                        <Input
+                          id="category"
+                          name="category"
+                          value={product.category}
+                          onChange={handleChange}
+                          placeholder="Categoría del producto"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tags">Etiquetas</Label>
+                        <Input
+                          id="tags"
+                          name="tags"
+                          value={product.tags}
+                          onChange={handleChange}
+                          placeholder="verano, oferta, nuevo"
+                        />
+                        <p className="text-xs text-muted-foreground">Separa las etiquetas con comas</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle>Inventario</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="sku">SKU (Código de producto)</Label>
+                        <Input
+                          id="sku"
+                          name="sku"
+                          value={product.sku}
+                          onChange={handleChange}
+                          placeholder="SKU-123"
+                          disabled={!isSkuEditable}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="barcode">Código de barras (ISBN, UPC, GTIN, etc.)</Label>
+                        <Input
+                          id="barcode"
+                          name="barcode"
+                          value={product.barcode}
+                          onChange={handleChange}
+                          placeholder="123456789"
+                          disabled={!isBarcodeEditable}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="quantity">Cantidad</Label>
+                        <Input
+                          id="quantity"
+                          name="quantity"
+                          value={product.quantity}
+                          onChange={handleChange}
+                          type="number"
+                          placeholder="0"
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="trackInventory"
+                          name="trackInventory"
+                          checked={product.track}
+                          onCheckedChange={(checked) => setProduct({ ...product, track: checked })}
+                        />
+                        <Label htmlFor="trackInventory">Seguimiento de inventario</Label>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                  <Card className="mt-6">
+                    <CardHeader>
+                      <CardTitle>Resumen de Variantes</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Tallas Seleccionadas</Label>
+                        <div className="flex flex-wrap gap-1">
+                          {product.sizes.length > 0 ? (
+                            product.sizes.map((size) => (
+                              <div key={size} className="bg-muted text-muted-foreground px-2 py-1 rounded text-sm">
+                                {size}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No hay tallas seleccionadas</p>
+                          )}
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No hay tallas seleccionadas</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Rango de Tallas (cm)</Label>
-                  <p className="text-sm">
-                    {product.range.min} - {product.range.max} cm
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Colores Seleccionados</Label>
-                  <div className="flex flex-wrap gap-1">
-                    {product.colors.length > 0 ? (
-                      product.colors.map((color) => (
-                        <div
-                          key={color}
-                          className="flex items-center gap-1 bg-muted text-muted-foreground px-2 py-1 rounded text-sm"
-                        >
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
-                          <span>{colorOptions.find((c) => c.value === color)?.name}</span>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Rango de Tallas (cm)</Label>
+                        <p className="text-sm">
+                          {product.range.min} - {product.range.max} cm
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Colores Seleccionados</Label>
+                        <div className="flex flex-wrap gap-1">
+                          {product.colors.length > 0 ? (
+                            product.colors.map((color) => (
+                              <div
+                                key={color}
+                                className="flex items-center gap-1 bg-muted text-muted-foreground px-2 py-1 rounded text-sm"
+                              >
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
+                                <span>{colorOptions.find((c) => c.value === color)?.name}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No hay colores seleccionados</p>
+                          )}
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No hay colores seleccionados</p>
-                    )}
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </main>
           </div>
+          <DashboardLayouts>
+            <></>
+          </DashboardLayouts>
         </div>
-      </main>
-    </div>
-    <DashboardLayouts>
-      <></>
-    </DashboardLayouts>
-      
-    </div>
-    </div>
+      </div>
     </>
   )
 }
