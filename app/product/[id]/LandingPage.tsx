@@ -65,7 +65,7 @@ export default function LandingPage({ product }: { product: Product }) {
                 {/* Contenido de texto */}
                 <div className={`space-y-6 ${index % 2 === 0 ? "lg:order-1" : "lg:order-2"}`}>
                   <div className="inline-block">
-                    <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full">
+                    <span className="bg-red-100 text-red-800 text-sm font-semibold px-4 py-2 rounded-full">
                       {actionText}
                     </span>
                   </div>
