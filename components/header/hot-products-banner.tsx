@@ -1,4 +1,3 @@
-// components/hot-products-banner.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,13 +6,15 @@ import { ChevronDown, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/lib/cartStore";
-import { $inferSelect } from "drizzle-orm/sqlite-core"; // ✅ si usas SQLite
+
+// Usa el tipo Product desde Zod si ya tienes el esquema
+import { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
 import { productsTable } from "@/lib/products/schema";
 
-type Product = $inferSelect<typeof productsTable> & {
+const selectProductSchema = createSelectSchema(productsTable);
+type Product = z.infer<typeof selectProductSchema> & {
   images: string[];
-  title: string;
-  price: number;
 };
 
 const customLoader = ({ src }: { src: string }) => src;
