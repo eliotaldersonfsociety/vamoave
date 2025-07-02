@@ -103,7 +103,7 @@ const nameMap: Record<string, string> = {
 };
 
 export default function NewProduct() {
-  const [product, setProduct] = useState<ProductForm>(initialProduct)
+  const [product, setProduct] = useState<ProductForm & { landingData?: LandingData | null }>(initialProduct);
   const [uploading, setUploading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [generatingImage, setGeneratingImage] = useState(false)
@@ -384,6 +384,7 @@ export default function NewProduct() {
         sizes: Array.isArray(product.sizes) ? product.sizes : [],
         size_range: product.range ? JSON.stringify(product.range) : "{}",
         colors: Array.isArray(product.colors) ? product.colors : [],
+        landingpage: product.landingData ? JSON.stringify(product.landingData) : null,
         shipping_services: product.shipping_services.map(service => ({
           name: service.name,
           balance: service.balance
@@ -413,6 +414,11 @@ export default function NewProduct() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Añade esta función para manejar los datos de la landing page:
+  const handleLandingDataGenerated = (data: LandingData) => {
+    setProduct(prev => ({ ...prev, landingData: data }));
   };
 
   useEffect(() => {
