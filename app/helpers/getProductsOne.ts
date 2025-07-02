@@ -49,6 +49,17 @@ export async function getProductById(id: number): Promise<Product | null> {
     balance: s.balance
   }));
 
+  function parseJSON<T>(value: any, defaultValue: T): T {
+  try {
+    if (typeof value === 'string') {
+      return JSON.parse(value) as T;
+    }
+    return value || defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
   // Construir el objeto Product
   return {
     id: p.id,
