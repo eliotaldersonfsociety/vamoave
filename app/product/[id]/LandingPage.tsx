@@ -1,8 +1,9 @@
 // components/LandingPage.tsx
+
 "use client";
 
 import Image from "next/image";
-import { Product } from "@/types/productos"; // ✅ Importamos el tipo
+import { Product } from "@/types/productos";
 
 export default function LandingPage({ product }: { product: Product }) {
   const landingData = product.landingpage;
@@ -25,55 +26,58 @@ export default function LandingPage({ product }: { product: Product }) {
 
       {/* Secciones dinámicas */}
       <div className="container mx-auto px-4">
-        {landingData.titles.slice(1).map((title, index) => (
-          <div key={index} className="py-16">
-            <div
-              className={`grid lg:grid-cols-2 gap-12 items-center ${
-                index % 2 === 0 ? "lg:grid-flow-col" : "lg:grid-flow-col-dense"
-              }`}
-            >
-              {/* Imagen */}
-              <div className={`${index % 2 === 0 ? "lg:order-2" : "lg:order-1"}`}>
-                <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                  <Image
-                    src={
-                      product.images[index % product.images.length] ||
-                      "/placeholder.svg?height=400&width=600"
-                    }
-                    alt={title}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-              </div>
+        {landingData.titles.slice(1).map((title, index) => {
+          // ✅ Manejo seguro de imágenes
+          const imageIndex = index % (product.images?.length || 1);
+          const imageUrl = product.images?.[imageIndex] || "/placeholder.svg?height=400&width=600";
 
-              {/* Contenido de texto */}
-              <div className={`space-y-6 ${index % 2 === 0 ? "lg:order-1" : "lg:order-2"}`}>
-                <div className="inline-block">
-                  <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full">
-                    Sección {index + 1}
-                  </span>
+          return (
+            <div key={index} className="py-16">
+              <div
+                className={`grid lg:grid-cols-2 gap-12 items-center ${
+                  index % 2 === 0 ? "lg:grid-flow-col" : "lg:grid-flow-col-dense"
+                }`}
+              >
+                {/* Imagen */}
+                <div className={`${index % 2 === 0 ? "lg:order-2" : "lg:order-1"}`}>
+                  <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+                    <Image
+                      src={imageUrl}
+                      alt={title}
+                      width={600}
+                      height={400}
+                      className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
                 </div>
 
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">{title}</h2>
+                {/* Contenido de texto */}
+                <div className={`space-y-6 ${index % 2 === 0 ? "lg:order-1" : "lg:order-2"}`}>
+                  <div className="inline-block">
+                    <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full">
+                      Sección {index + 1}
+                    </span>
+                  </div>
 
-                <p className="text-lg text-gray-600 leading-relaxed whitespace-pre-line">
-                  {landingData.texts[index + 1]}
-                </p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">{title}</h2>
 
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-                    Saber Más
-                  </button>
-                  <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-                    Ver Detalles
-                  </button>
+                  <p className="text-lg text-gray-600 leading-relaxed whitespace-pre-line">
+                    {landingData.texts[index + 1]}
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
+                      Saber Más
+                    </button>
+                    <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
+                      Ver Detalles
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Sección final */}
