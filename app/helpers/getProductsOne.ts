@@ -55,7 +55,7 @@ export async function getProductById(id: number) {
     sku: p.sku ?? null,
     barcode: p.barcode ?? null,
     quantity: p.quantity ?? undefined,
-    trackInventory:
+    track:
       typeof p.track_inventory === "number"
         ? p.track_inventory === 1
         : p.track_inventory ?? undefined,
