@@ -74,25 +74,25 @@ export async function getProductById(id: number): Promise<Product | null> {
 export async function updateProductById(id: number, data: Partial<Product>) {
   // Preparar los datos para la actualización
   const updatedData = {
-    title: data.title,
-    description: data.description,
-    price: data.price,
-    compare_at_price: data.compare ?? null,
-    cost_per_item: data.cost_per_item ?? null,
-    vendor: data.vendor ?? null,
-    product_type: data.type ?? null,
-    status: data.status ? 1 : 0,
-    category: data.category ?? null,
-    tags: JSON.stringify(data.tags || []),
-    sku: data.sku ?? null,
-    barcode: data.barcode ?? null,
-    quantity: data.quantity ?? 0,
-    track_inventory: data.track ? 1 : 0,
-    images: JSON.stringify(data.images || []),
-    sizes: JSON.stringify(data.sizes || []),
-    colors: JSON.stringify(data.colors || []),
-    size_range: JSON.stringify(data.range || { min: 0, max: 0 })
-  };
+  title: data.title,
+  description: data.description ?? '',
+  price: data.price ? Number(data.price) : 0,
+  compare_at_price: data.compare ? Number(data.compare) : null,
+  cost_per_item: data.cost_per_item ? Number(data.cost_per_item) : null,
+  vendor: data.vendor ?? null,
+  product_type: data.type ?? null,
+  status: data.status ? 1 : 0,
+  category: data.category ?? null,
+  tags: JSON.stringify(data.tags || []),
+  sku: data.sku ?? null,
+  barcode: data.barcode ?? null,
+  quantity: data.quantity ?? 0,
+  track_inventory: data.track ? 1 : 0,
+  images: JSON.stringify(data.images || []),
+  sizes: JSON.stringify(data.sizes || []),
+  colors: JSON.stringify(data.colors || []),
+  size_range: JSON.stringify(data.range || { min: 0, max: 0 })
+};
 
   return await db
     .update(productsTable)
