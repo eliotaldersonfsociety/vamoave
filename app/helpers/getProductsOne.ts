@@ -62,7 +62,7 @@ export async function getProductById(id: number): Promise<Product | null> {
     sku: p.sku ?? null,
     barcode: p.barcode ?? null,
     quantity: p.quantity ?? 0,
-    track_inventory: p.track_inventory,
+    track: p.track_inventory,
     images: parseArray<string>(p.images),
     sizes: parseArray<string>(p.sizes),
     colors: parseArray<string>(p.colors),
