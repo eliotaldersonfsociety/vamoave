@@ -2,8 +2,9 @@
 import { eq } from "drizzle-orm";
 import db from "@/lib/db/productos/db";
 import { productsTable, shippingServicesTable } from "@/lib/products/schema";
+import { Product, ShippingService } from "@/types/productos";
 
-export async function getProductById(id: number) {
+export async function getProductById(id: number): Promise<Product | null> {
   const product = await db
     .select()
     .from(productsTable)
@@ -14,69 +15,83 @@ export async function getProductById(id: number) {
   const p = product[0];
 
   // Obtener servicios de envío relacionados
-  const shipping_services = await db
+  const shippingServices = await db
     .select()
     .from(shippingServicesTable)
     .where(eq(shippingServicesTable.productId, p.id));
 
-  // Parseos
-  const parseArray = (value: any): string[] => {
+  // Funciones auxiliares para parsear datos
+  const parseArray = <T>(value: any, defaultValue: T[] = []): T[] => {
     try {
-      return Array.isArray(value)
-        ? value
-        : typeof value === "string"
-        ? JSON.parse(value)
-        : [];
+      if (Array.isArray(value)) return value;
+      if (typeof value === 'string') return JSON.parse(value);
+      return defaultValue;
     } catch {
-      return [];
+      return defaultValue;
     }
   };
 
-  const parseJSON = (value: any) => {
+  const parseJSON = <T>(value: any, defaultValue: T): T => {
     try {
-      return typeof value === "string" ? JSON.parse(value) : value;
+      if (typeof value === 'string') return JSON.parse(value);
+      return value || defaultValue;
     } catch {
-      return {};
+      return defaultValue;
     }
   };
 
+  // Mapear los servicios de envío al tipo correcto
+  const mappedShippingServices: ShippingService[] = shippingServices.map(s => ({
+    name: s.name,
+    balance: s.balance
+  }));
+
+  // Construir el objeto Product
   return {
     id: p.id,
     title: p.title,
-    description: p.description ?? null,
+    description: p.description || '',
     price: p.price,
     compare: p.compare_at_price ?? null,
     cost_per_item: p.cost_per_item ?? null,
     vendor: p.vendor ?? null,
     type: p.product_type ?? null,
-    status: typeof p.status === "number" ? p.status === 1 : p.status ?? undefined,
+    status: !!p.status, // Convertir a boolean explícitamente
     category: p.category ?? null,
-    tags: parseArray(p.tags),
+    tags: parseArray<string>(p.tags),
     sku: p.sku ?? null,
     barcode: p.barcode ?? null,
-    quantity: p.quantity ?? undefined,
-    track:
-      typeof p.track_inventory === "number"
-        ? p.track_inventory === 1
-        : p.track_inventory ?? undefined,
-    images: parseArray(p.images),
-    sizes: parseArray(p.sizes),
-    colors: parseArray(p.colors),
-    range: parseJSON(p.size_range),
-    shipping_services,
+    quantity: p.quantity ?? 0,
+    trackInventory: !!p.track_inventory, // Usar trackInventory en lugar de track
+    images: parseArray<string>(p.images),
+    sizes: parseArray<string>(p.sizes),
+    colors: parseArray<string>(p.colors),
+    range: parseJSON<{ min: number; max: number }>(p.size_range, { min: 0, max: 0 }),
+    shipping_services: mappedShippingServices
   };
 }
 
-export async function updateProductById(id: number, data: any) {
+export async function updateProductById(id: number, data: Partial<Product>) {
+  // Preparar los datos para la actualización
   const updatedData = {
-    ...data,
-    images: Array.isArray(data.images) ? JSON.stringify(data.images) : "[]",
-    sizes: Array.isArray(data.sizes) ? JSON.stringify(data.sizes) : "[]",
-    colors: Array.isArray(data.colors) ? JSON.stringify(data.colors) : "[]",
-    tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : "[]",
-    size_range: data.sizeRange ? JSON.stringify(data.sizeRange) : null,
-    status: typeof data.status === "boolean" ? (data.status ? 1 : 0) : undefined,
-    track_inventory: typeof data.trackInventory === "boolean" ? (data.trackInventory ? 1 : 0) : undefined,
+    title: data.title,
+    description: data.description,
+    price: data.price,
+    compare_at_price: data.compare ?? null,
+    cost_per_item: data.cost_per_item ?? null,
+    vendor: data.vendor ?? null,
+    product_type: data.type ?? null,
+    status: data.status ? 1 : 0,
+    category: data.category ?? null,
+    tags: JSON.stringify(data.tags || []),
+    sku: data.sku ?? null,
+    barcode: data.barcode ?? null,
+    quantity: data.quantity ?? 0,
+    track_inventory: data.trackInventory ? 1 : 0,
+    images: JSON.stringify(data.images || []),
+    sizes: JSON.stringify(data.sizes || []),
+    colors: JSON.stringify(data.colors || []),
+    size_range: JSON.stringify(data.range || { min: 0, max: 0 })
   };
 
   return await db
@@ -85,11 +100,8 @@ export async function updateProductById(id: number, data: any) {
     .where(eq(productsTable.id, id));
 }
 
-export async function deleteProductById(id: number) {
-  // Debido a ON DELETE CASCADE, no necesitas borrar manualmente los servicios de envío
-  const result = await db
+export async function deleteProductById(id: number): Promise<void> {
+  await db
     .delete(productsTable)
     .where(eq(productsTable.id, id));
-
-  return result;
 }
