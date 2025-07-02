@@ -368,7 +368,7 @@ export default function NewProduct() {
         cost_per_item: Number(product.cost_per_item),
         vendor: product.vendor,
         product_type: product.type,
-        status: product.status,
+        status: product.status ? 1 : 0,
         category: product.category,
         tags: product.tags,
         sku: product.sku,
