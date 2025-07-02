@@ -43,6 +43,12 @@ type ProductForm = {
   shipping_services: { name: string; balance: number }[];
 };
 
+interface LandingData {
+  titles: string[];
+  texts: string[];
+  callToAction: string;
+}
+
 type Props = {
   productTitle: string
   productCategory: string
