@@ -791,7 +791,7 @@ export default function ProductDisplay({ product }: { product: Product }) {
       </div>
       </div>
       <CommentsPage averageRating={typeof rating === "number" ? rating : 5} />
-      <LandingPage />
+      <LandingPage product={product} />
     </div>
   );
 }
