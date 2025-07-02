@@ -1,10 +1,14 @@
-// app/actions/saveProduct.ts
 "use server";
 
 import db from "@/lib/db/productos/db";
 import { productsTable, shippingServicesTable, NewProduct, NewShippingService } from "@/lib/products/schema";
 
-interface InputProduct extends Omit<NewProduct, "id"> {
+// Definimos un tipo adaptado que acepta números en lugar de booleanos
+type FrontendProduct = Omit<NewProduct, "id" | "status"> & {
+  status: number;
+};
+
+interface InputProduct extends FrontendProduct {
   shipping_services: Omit<NewShippingService, "id" | "productId">[];
 }
 
