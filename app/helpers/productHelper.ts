@@ -20,6 +20,7 @@ export const saveProduct = async (product: InputProduct) => {
       .values({
         ...product,
         status: sql<number>`${product.status}`, // ✅ Conversión correcta
+        landingpage: product.landingpage ? sql<string>`CAST(${product.landingpage} AS TEXT)` : null,
       })
       .returning();
 
