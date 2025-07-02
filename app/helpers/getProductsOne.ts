@@ -2,7 +2,7 @@
 import { eq } from "drizzle-orm";
 import db from "@/lib/db/productos/db";
 import { productsTable, shippingServicesTable } from "@/lib/products/schema";
-import { Product, ShippingService } from "@/types/productos";
+import { Product, ShippingService, LandingData } from "@/types/productos";
 
 export async function getProductById(id: number): Promise<Product | null> {
   const product = await db
@@ -40,6 +40,9 @@ export async function getProductById(id: number): Promise<Product | null> {
     }
   };
 
+  // Aquí va la nueva parte: parseamos `landingpage`
+  const landingData: LandingData | null = parseJSON(p.landingpage, null);
+
   // Mapear los servicios de envío al tipo correcto
   const mappedShippingServices: ShippingService[] = shippingServices.map(s => ({
     name: s.name,
@@ -67,7 +70,8 @@ export async function getProductById(id: number): Promise<Product | null> {
     sizes: parseArray<string>(p.sizes),
     colors: parseArray<string>(p.colors),
     range: parseJSON<{ min: number; max: number }>(p.size_range, { min: 0, max: 0 }),
-    shipping_services: mappedShippingServices
+    shipping_services: mappedShippingServices,
+    landingData: landingData
   };
 }
 
@@ -91,7 +95,8 @@ export async function updateProductById(id: number, data: Partial<Product>) {
   images: JSON.stringify(data.images || []),
   sizes: JSON.stringify(data.sizes || []),
   colors: JSON.stringify(data.colors || []),
-  size_range: JSON.stringify(data.range || { min: 0, max: 0 })
+  size_range: JSON.stringify(data.range || { min: 0, max: 0 }),
+  landingData: parseJSON<LandingData | null>(p.landingpage, null)
 };
 
   return await db
