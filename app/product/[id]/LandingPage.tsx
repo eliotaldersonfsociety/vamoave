@@ -1,10 +1,11 @@
+// components/LandingPage.tsx
 "use client";
 
 import Image from "next/image";
-import { useProductContext } from "@/context/ProductContext"; // Asegúrate de tener este contexto o recibe `product` por props
+import { Product } from "@/types/productos"; // ✅ Importamos el tipo
 
-export default function Component({ product }: { product: Product }) {
-  const landingData = product?.landingData;
+export default function LandingPage({ product }: { product: Product }) {
+  const landingData = product.landingData;
 
   if (!landingData || !landingData.titles.length) {
     return (
