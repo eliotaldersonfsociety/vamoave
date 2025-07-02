@@ -1,5 +1,3 @@
-// components/LandingPage.tsx
-
 "use client";
 
 import Image from "next/image";
@@ -9,6 +7,13 @@ import { Product } from "@/types/productos";
 const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
   return `${src}?w=${width}&q=${quality || 75}`;
 };
+
+// Frases de incentivo a la compra
+const actionPhrases = [
+  "Compra 100% segura",
+  "Pídelo y pagas en tu casa",
+  "¡Quedan pocas unidades!",
+];
 
 export default function LandingPage({ product }: { product: Product }) {
   const landingData = product.landingpage;
@@ -34,6 +39,7 @@ export default function LandingPage({ product }: { product: Product }) {
         {landingData.titles.slice(1).map((title, index) => {
           const imageIndex = index % (product.images?.length || 1);
           const imageUrl = product.images?.[imageIndex] || "/placeholder.svg?height=400&width=600";
+          const actionText = actionPhrases[index % actionPhrases.length];
 
           return (
             <div key={index} className="py-16">
@@ -60,7 +66,7 @@ export default function LandingPage({ product }: { product: Product }) {
                 <div className={`space-y-6 ${index % 2 === 0 ? "lg:order-1" : "lg:order-2"}`}>
                   <div className="inline-block">
                     <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full">
-                      Sección {index + 1}
+                      {actionText}
                     </span>
                   </div>
 
@@ -70,10 +76,7 @@ export default function LandingPage({ product }: { product: Product }) {
                     {landingData.texts[index + 1]}
                   </p>
 
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-                      Saber Más
-                    </button>
+                  <div className="pt-4">
                     <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
                       Ver Detalles
                     </button>
@@ -90,9 +93,9 @@ export default function LandingPage({ product }: { product: Product }) {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">{landingData.callToAction}</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Únete a miles de empresas que ya están transformando su futuro digital con nuestras soluciones
+            Miles ya aprovecharon estas ofertas… ¿y tú, qué esperas?
           </p>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-lg transition-colors duration-200">
+          <button className="bg-red-800 hover:bg-red-900 text-white font-bold py-4 px-12 rounded-lg text-lg transition-colors duration-200">
             Comenzar Ahora
           </button>
         </div>
