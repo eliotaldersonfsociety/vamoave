@@ -2,6 +2,17 @@ import db from '@/lib/db/productos/db';
 import { productsTable } from "@/lib/products/schema";
 import { eq } from "drizzle-orm";
 
+export type HotProduct = {
+  id: number;
+  title: string;
+  price: number;
+  images: string[];
+  tags?: string[];
+  sizes?: string[];
+  colors?: string[];
+  size_range?: { min: number; max: number };
+};
+
 // Si usas Zod:
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
