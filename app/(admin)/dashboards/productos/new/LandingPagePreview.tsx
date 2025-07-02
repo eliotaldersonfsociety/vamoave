@@ -18,13 +18,18 @@ export default function LandingPagePreview({
   productTitle,
   productCategory,
   productImages = [],
+  productId,
+  onSaveLanding,
 }: {
   productTitle: string;
   productCategory: string;
   productImages: string[];
+  productId?: number;
+  onSaveLanding?: (landingData: LandingData) => Promise<void>;
 }) {
   const [landingData, setLandingData] = useState<LandingData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("generated_landing");
@@ -74,6 +79,42 @@ export default function LandingPagePreview({
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveLandingToDB = async () => {
+    if (!landingData || !productId) return;
+    
+    setSaving(true);
+    try {
+      if (onSaveLanding) {
+        await onSaveLanding(landingData);
+      } else {
+        const res = await fetch("/api/save-landing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId,
+            landingData
+          }),
+        });
+
+        if (!res.ok) throw new Error("Error guardando landing page");
+
+        toast({
+          title: "Landing guardada",
+          description: "El contenido de la landing page se ha guardado correctamente.",
+        });
+      }
+    } catch (error) {
+      console.error("Error al guardar landing:", error);
+      toast({
+        title: "Error guardando landing",
+        description: "Hubo un problema al guardar en la base de datos.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -142,8 +183,15 @@ export default function LandingPagePreview({
             </button>
           </section>
 
-          {/* Botón para limpiar y generar otra */}
-          <div className="text-center">
+          {/* Botones de acción */}
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={saveLandingToDB}
+              disabled={saving || !productId}
+              className="mt-6 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition disabled:bg-green-300"
+            >
+              {saving ? "Guardando..." : "Guardar Landing en BD"}
+            </button>
             <button
               onClick={resetLanding}
               className="mt-6 px-5 py-2 bg-red-100 hover:bg-red-200 text-red-600 font-medium rounded-lg transition"
