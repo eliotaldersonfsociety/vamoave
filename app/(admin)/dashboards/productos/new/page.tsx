@@ -795,6 +795,7 @@ export default function NewProduct() {
                             productTitle={product.title}
                             productCategory={product.category}
                             productImages={product.images}
+                            onSaveLanding={async (data) => handleLandingDataGenerated(data)}
                           />
                         </CardContent>
                       </Card>
