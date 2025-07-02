@@ -87,7 +87,7 @@ export async function updateProductById(id: number, data: Partial<Product>) {
     sku: data.sku ?? null,
     barcode: data.barcode ?? null,
     quantity: data.quantity ?? 0,
-    track: data.trackInventory ? 1 : 0,
+    track_inventory: data.track ? 1 : 0,
     images: JSON.stringify(data.images || []),
     sizes: JSON.stringify(data.sizes || []),
     colors: JSON.stringify(data.colors || []),
