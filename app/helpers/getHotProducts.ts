@@ -1,24 +1,6 @@
+// app/helpers/getHotProducts.ts
 import db from '@/lib/db/productos/db';
 import { productsTable } from "@/lib/products/schema";
-import { eq } from "drizzle-orm";
-
-export type HotProduct = {
-  id: number;
-  title: string;
-  price: number;
-  images: string[];
-  tags?: string[];
-  sizes?: string[];
-  colors?: string[];
-  size_range?: { min: number; max: number };
-};
-
-// Si usas Zod:
-import { z } from "zod";
-import { createSelectSchema } from "drizzle-zod";
-
-const selectProductSchema = createSelectSchema(productsTable);
-type Product = z.infer<typeof selectProductSchema>;
 
 function parseMaybeJSONOrCSV(value: any): string[] {
   if (!value || value === "" || value === "null") return [];
@@ -53,22 +35,34 @@ function getRandom<T>(array: T[], count: number): T[] {
   return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
+// Este tipo debe coincidir con el de hot-products-banner.tsx
+export type Product = {
+  id: number;
+  title: string;
+  price: number;
+  images: string[];
+  tags?: string[];
+  sizes?: string[];
+  colors?: string[];
+  size_range?: { min: number; max: number };
+};
+
 export async function getHotProducts(): Promise<Product[]> {
   try {
-    const allProducts = await db.select().from(productsTable); // 👈 corrección
-
-    if (!allProducts.length) return [];
+    const allProducts = await db.select().from(productsTable);
 
     const formatted = allProducts.map((product: any) => ({
-      ...product,
+      id: product.id,
+      title: product.title,
+      price: product.price,
       images: getValidImages(product.images),
       tags: parseMaybeJSONOrCSV(product.tags),
       sizes: parseMaybeJSONOrCSV(product.sizes),
-      size_range: parseMaybeJSON(product.size_range, { min: 18, max: 45 }),
       colors: parseMaybeJSONOrCSV(product.colors),
+      size_range: parseMaybeJSON(product.size_range, { min: 18, max: 45 }),
     }));
 
-    return getRandom(formatted, 4); // Solo 4 productos hot
+    return getRandom(formatted, 4);
   } catch (error) {
     console.error("Error en getHotProducts():", error);
     return [];
