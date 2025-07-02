@@ -1,3 +1,4 @@
+// components/header/hot-products-banner.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,15 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/lib/cartStore";
 
-// Usa el tipo Product desde Zod si ya tienes el esquema
-import { z } from "zod";
-import { createSelectSchema } from "drizzle-zod";
-import { productsTable } from "@/lib/products/schema";
-
-const selectProductSchema = createSelectSchema(productsTable);
-type Product = z.infer<typeof selectProductSchema> & {
-  images: string[];
-};
+// Importa el tipo ya definido
+import { Product } from "@/app/helpers/getHotProducts";
 
 const customLoader = ({ src }: { src: string }) => src;
 
