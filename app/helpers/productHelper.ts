@@ -2,8 +2,9 @@
 
 import db from "@/lib/db/productos/db";
 import { productsTable, shippingServicesTable, NewProduct, NewShippingService } from "@/lib/products/schema";
+import { sql } from "drizzle-orm";
 
-// Definimos un tipo adaptado que acepta números en lugar de booleanos
+// Definimos tipos correctamente
 type FrontendProduct = Omit<NewProduct, "id" | "status"> & {
   status: number;
 };
@@ -14,8 +15,15 @@ interface InputProduct extends FrontendProduct {
 
 export const saveProduct = async (product: InputProduct) => {
   try {
-    const [newProduct] = await db.insert(productsTable).values(product).returning();
+    // Insertamos el producto asegurándonos de convertir `status` adecuadamente
+    const [newProduct] = await db.insert(productsTable)
+      .values({
+        ...product,
+        status: sql<number>`${product.status}`, // ✅ Conversión correcta
+      })
+      .returning();
 
+    // Insertamos servicios de envío
     const servicesToInsert: NewShippingService[] = product.shipping_services.map(service => ({
       name: service.name,
       balance: service.balance,
