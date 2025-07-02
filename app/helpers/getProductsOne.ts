@@ -45,10 +45,10 @@ export async function getProductById(id: number) {
     title: p.title,
     description: p.description ?? null,
     price: p.price,
-    compareAtPrice: p.compare_at_price ?? null,
-    costPerItem: p.cost_per_item ?? null,
+    compare: p.compare_at_price ?? null,
+    cost_per_item: p.cost_per_item ?? null,
     vendor: p.vendor ?? null,
-    productType: p.product_type ?? null,
+    type: p.product_type ?? null,
     status: typeof p.status === "number" ? p.status === 1 : p.status ?? undefined,
     category: p.category ?? null,
     tags: parseArray(p.tags),
@@ -62,7 +62,7 @@ export async function getProductById(id: number) {
     images: parseArray(p.images),
     sizes: parseArray(p.sizes),
     colors: parseArray(p.colors),
-    sizeRange: parseJSON(p.size_range),
+    range: parseJSON(p.size_range),
     shipping_services,
   };
 }
