@@ -1,16 +1,14 @@
-// app/helpers/getHotProducts.ts
-
-import { db } from "@/lib/db/index";
+import db from "@/lib/db";
 import { productsTable } from "@/lib/products/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+
+// Si usas Zod:
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 
-// Esquema para validar productos seleccionados
 const selectProductSchema = createSelectSchema(productsTable);
-export type Product = z.infer<typeof selectProductSchema>;
+type Product = z.infer<typeof selectProductSchema>;
 
-// Utilidades para parseo seguro de arrays y objetos
 function parseMaybeJSONOrCSV(value: any): string[] {
   if (!value || value === "" || value === "null") return [];
   if (Array.isArray(value)) return value;
@@ -39,26 +37,29 @@ function getValidImages(images: any): string[] {
   return imgs;
 }
 
-// Helper principal para obtener productos aleatorios
-export async function getHotProducts(limit = 4): Promise<Product[]> {
-  try {
-    const rawProducts = await db
-      .select()
-      .from(productsTable)
-      .orderBy(sql`RANDOM()`) // PostgreSQL / SQLite
-      .limit(limit);
+function getRandom<T>(array: T[], count: number): T[] {
+  const shuffled = array.slice().sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
 
-    return rawProducts.map((product: any) => ({
+export async function getHotProducts(): Promise<Product[]> {
+  try {
+    const allProducts = await db.select().from(productsTable); // 👈 corrección
+
+    if (!allProducts.length) return [];
+
+    const formatted = allProducts.map((product: any) => ({
       ...product,
-      status: product.status ?? 0,
       images: getValidImages(product.images),
       tags: parseMaybeJSONOrCSV(product.tags),
       sizes: parseMaybeJSONOrCSV(product.sizes),
       size_range: parseMaybeJSON(product.size_range, { min: 18, max: 45 }),
       colors: parseMaybeJSONOrCSV(product.colors),
     }));
+
+    return getRandom(formatted, 4); // Solo 4 productos hot
   } catch (error) {
-    console.error("Error en getHotProducts:", error);
+    console.error("Error en getHotProducts():", error);
     return [];
   }
 }
