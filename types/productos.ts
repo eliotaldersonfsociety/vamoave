@@ -47,6 +47,7 @@ export interface Product {
   range: { min: number; max: number } | null;
   colors: string[] | null;
   shipping_services: { name: string; balance: number }[];
+  landingpage: LandingData | null;
 }
 
 export interface DeliveryInfo {
@@ -84,4 +85,10 @@ export interface CartState {
   addToCart: (p: CartItem) => void;
   removeFromCart: (id: number) => void;
   clearCart: () => void;
+}
+
+export interface LandingData {
+  titles: string[];
+  texts: string[];
+  callToAction: string;
 }
