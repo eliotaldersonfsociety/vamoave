@@ -1,4 +1,4 @@
-import db from "@/lib/db";
+import db from '@/lib/db/productos/db';
 import { productsTable } from "@/lib/products/schema";
 import { eq } from "drizzle-orm";
 
