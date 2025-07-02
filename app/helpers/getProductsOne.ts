@@ -71,7 +71,7 @@ export async function getProductById(id: number): Promise<Product | null> {
     colors: parseArray<string>(p.colors),
     range: parseJSON<{ min: number; max: number }>(p.size_range, { min: 0, max: 0 }),
     shipping_services: mappedShippingServices,
-    landingData: landingData
+    landingpage: landingData
   };
 }
 
@@ -96,7 +96,7 @@ export async function updateProductById(id: number, data: Partial<Product>) {
   sizes: JSON.stringify(data.sizes || []),
   colors: JSON.stringify(data.colors || []),
   size_range: JSON.stringify(data.range || { min: 0, max: 0 }),
-  landingData: parseJSON<LandingData | null>(p.landingpage, null)
+  landingpage: parseJSON<LandingData | null>(p.landingpage, null)
 };
 
   return await db
