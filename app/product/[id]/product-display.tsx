@@ -20,30 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import CountdownTimer from "@/components/countdown-timer";
 import FAQ from "@/app/preguntas/page";
 import LandingPage from "./LandingPage";
-
-// Interfaz para definir la estructura del objeto producto
-interface Product {
-  id: number;
-  title: string;
-  description: string | null;
-  price: string;
-  compare: string | number | null;
-  cost_per_item: string | number | null;
-  vendor: string | null;
-  type: string | null;
-  status: boolean | null;
-  category: string | null;
-  tags: string | string[] | null;
-  sku: string | null;
-  barcode: string | null;
-  quantity: number | null;
-  track: boolean | null;
-  images: string[] | null;
-  sizes: string[] | null;
-  range: { min: number; max: number } | null;
-  colors: string[] | null;
-  shipping_services: { name: string; balance: number }[];
-}
+import { Product } from "@/types/productos"; // Usa la misma interfaz que defines globalmente
 
 // Loader personalizado para Next/Image (opcional)
 const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
