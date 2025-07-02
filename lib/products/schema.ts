@@ -12,7 +12,7 @@ export const productsTable = sqliteTable("products", {
   vendor: text("vendor"),
   product_type: text("product_type"),
   status: integer("status", { mode: "boolean" }).notNull().default(true),
-
+  landingpage: text("landingpage"), // JSON string con el contenido de la landing
   category: text("category"),
   tags: text("tags"),
   sku: text("sku"),
