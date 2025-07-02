@@ -81,7 +81,7 @@ export async function updateProductById(id: number, data: Partial<Product>) {
   cost_per_item: data.cost_per_item ? Number(data.cost_per_item) : null,
   vendor: data.vendor ?? null,
   product_type: data.type ?? null,
-  status: data.status,
+  status: typeof data.status === "boolean" ? data.status : true,
   category: data.category ?? null,
   tags: JSON.stringify(data.tags || []),
   sku: data.sku ?? null,
