@@ -6,30 +6,25 @@ import Image from "next/image";
 import { MenuIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useCartStore } from "@/lib/cartStore"; // ✅ Nuevo import
+import { useCartStore } from "@/lib/cartStore";
 
 import SearchBar from "@/components/header/search-bar";
 import UserMenu from "@/components/header/user-menu";
 import ShoppingCart from "@/components/header/shopping-cart";
 import NavigationMenu from "@/components/header/navigation-menu";
-import HotProductsBannerWrapper from "@/components/header/HotProductsBannerWrapper";
+import HotProductsBannerWrapper from "@/components/header/HotProductsBannerWrapper"; // ✅ usa el wrapper
 import OffersBanner from "@/components/header/offers-banner";
 import CountdownTimer from "@/components/countdown-timer";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isSignedIn, user } = useUser();
-  const cartItems = useCartStore(state => state.cartItems);
-  const addToCart = useCartStore(state => state.addToCart);
-  const removeFromCart = useCartStore(state => state.removeFromCart);
+  const { isSignedIn } = useUser();
   const pathname = usePathname();
   const isProductPage = /^\/product\/[^/]+$/.test(pathname);
 
-  const isLoggedIn = !!isSignedIn;
-
   return (
     <header className="border-b sticky top-0 bg-background z-50" id="site-header">
-      <HotProductsBannerWrapper />
+      <HotProductsBannerWrapper /> {/* ✅ ya no lanza error */}
 
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -66,7 +61,7 @@ export default function Header() {
 
         <NavigationMenu
           mobileMenuOpen={mobileMenuOpen}
-          isLoggedIn={isLoggedIn}
+          isLoggedIn={!!isSignedIn}
         />
       </div>
 
