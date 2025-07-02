@@ -7,7 +7,7 @@ import { ChevronDown, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/lib/cartStore";
-import { $inferSelect } from "drizzle-orm";
+import { $inferSelect } from "drizzle-orm/sqlite-core"; // ✅ si usas SQLite
 import { productsTable } from "@/lib/products/schema";
 
 type Product = $inferSelect<typeof productsTable> & {
