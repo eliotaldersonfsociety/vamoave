@@ -5,6 +5,11 @@
 import Image from "next/image";
 import { Product } from "@/types/productos";
 
+// Loader personalizado para imágenes externas
+const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
+  return `${src}?w=${width}&q=${quality || 75}`;
+};
+
 export default function LandingPage({ product }: { product: Product }) {
   const landingData = product.landingpage;
 
@@ -27,7 +32,6 @@ export default function LandingPage({ product }: { product: Product }) {
       {/* Secciones dinámicas */}
       <div className="container mx-auto px-4">
         {landingData.titles.slice(1).map((title, index) => {
-          // ✅ Manejo seguro de imágenes
           const imageIndex = index % (product.images?.length || 1);
           const imageUrl = product.images?.[imageIndex] || "/placeholder.svg?height=400&width=600";
 
@@ -43,9 +47,10 @@ export default function LandingPage({ product }: { product: Product }) {
                   <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                     <Image
                       src={imageUrl}
-                      alt={title}
+                      alt={`Imagen sección ${index + 1}`}
                       width={600}
                       height={400}
+                      loader={customLoader}
                       className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </div>
