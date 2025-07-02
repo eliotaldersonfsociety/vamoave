@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Product } from "@/types/productos"; // ✅ Importamos el tipo
 
 export default function LandingPage({ product }: { product: Product }) {
-  const landingData = product.landingData;
+  const landingData = product.landingpage;
 
   if (!landingData || !landingData.titles.length) {
     return (
