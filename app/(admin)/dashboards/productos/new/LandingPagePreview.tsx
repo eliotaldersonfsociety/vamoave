@@ -10,6 +10,14 @@ interface LandingData {
   callToAction: string;
 }
 
+interface Props {
+  productTitle: string;
+  productCategory: string;
+  productImages?: string[];
+  productId?: number;
+  onSaveLanding?: (landingData: LandingData) => Promise<void>;
+}
+
 const customLoader = ({ src }: { src: string }) => {
   return src;
 };
@@ -20,13 +28,7 @@ export default function LandingPagePreview({
   productImages = [],
   productId,
   onSaveLanding,
-}: {
-  productTitle: string;
-  productCategory: string;
-  productImages: string[];
-  productId?: number;
-  onSaveLanding?: (landingData: LandingData) => Promise<void>;
-}) {
+}: Props) {
   const [landingData, setLandingData] = useState<LandingData | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -83,13 +85,13 @@ export default function LandingPagePreview({
   };
 
   const saveLandingToDB = async () => {
-    if (!landingData || !productId) return;
+    if (!landingData) return;
     
     setSaving(true);
     try {
       if (onSaveLanding) {
         await onSaveLanding(landingData);
-      } else {
+      } else if (productId) {
         const res = await fetch("/api/save-landing", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -105,12 +107,14 @@ export default function LandingPagePreview({
           title: "Landing guardada",
           description: "El contenido de la landing page se ha guardado correctamente.",
         });
+      } else {
+        throw new Error("No hay productId definido");
       }
     } catch (error) {
       console.error("Error al guardar landing:", error);
       toast({
         title: "Error guardando landing",
-        description: "Hubo un problema al guardar en la base de datos.",
+        description: error instanceof Error ? error.message : "Hubo un problema al guardar en la base de datos.",
         variant: "destructive",
       });
     } finally {
@@ -187,10 +191,10 @@ export default function LandingPagePreview({
           <div className="flex justify-center gap-4">
             <button
               onClick={saveLandingToDB}
-              disabled={saving || !productId}
+              disabled={saving || (!productId && !onSaveLanding)}
               className="mt-6 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition disabled:bg-green-300"
             >
-              {saving ? "Guardando..." : "Guardar Landing en BD"}
+              {saving ? "Guardando..." : "Guardar Landing"}
             </button>
             <button
               onClick={resetLanding}
