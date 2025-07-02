@@ -30,7 +30,7 @@ export interface Product {
   id: number;
   title: string;
   description: string | null;
-  price: string;
+  price: number | string;
   compare: string | number | null;
   cost_per_item: string | number | null;
   vendor: string | null;
