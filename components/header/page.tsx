@@ -12,7 +12,6 @@ import SearchBar from "@/components/header/search-bar";
 import UserMenu from "@/components/header/user-menu";
 import ShoppingCart from "@/components/header/shopping-cart";
 import NavigationMenu from "@/components/header/navigation-menu";
-import HotProductsBannerWrapper from "@/components/header/HotProductsBannerWrapper"; // ✅ usa el wrapper
 import OffersBanner from "@/components/header/offers-banner";
 import CountdownTimer from "@/components/countdown-timer";
 
@@ -24,7 +23,6 @@ export default function Header() {
 
   return (
     <header className="border-b sticky top-0 bg-background z-50" id="site-header">
-      <HotProductsBannerWrapper /> {/* ✅ ya no lanza error */}
 
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
