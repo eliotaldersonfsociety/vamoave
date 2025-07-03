@@ -1,5 +1,6 @@
 // lib/db/db3.ts
-import { createClient } from '@libsql/client/web';
+import { createClient } from "@libsql/client"; // ✅ Correcto (NO uses "web")
+
 import { drizzle } from 'drizzle-orm/libsql';
 
 const client = createClient({
