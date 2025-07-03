@@ -1,8 +1,8 @@
 // components/header/HotProductsBannerWrapper.tsx
-import { getHotProducts, Product } from "@/app/helpers/getHotProducts";
 import HotProductsBanner from "./hot-products-banner";
+import { getHotProducts } from "@/app/helpers/getHotProducts";
 
 export default async function HotProductsBannerWrapper() {
-  const hotProducts: Product[] = await getHotProducts();
+  const hotProducts = await getHotProducts();
   return <HotProductsBanner hotProducts={hotProducts} />;
 }
