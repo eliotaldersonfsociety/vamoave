@@ -11,6 +11,7 @@ import ClientCartProvider from "@/components/cart";
 import PageViewTracker from "@/components/PageViewTracker";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ClerkProvider } from "@clerk/nextjs";
+import HotProductsBannerWrapper from "@/components/header/HotProductsBannerWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
           <PageViewTracker />
           <ClientCartProvider>
             <UpdateHeaderHeight />
+            <HotProductsBannerWrapper />
             <Header />
             {children}
             <Footer />
